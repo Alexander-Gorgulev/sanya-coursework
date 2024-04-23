@@ -16,6 +16,7 @@
 									v-model="formData[field.model]"
 									:id="field.model"
 									:name="field.name"
+									:value="field.model"
 								/>
 								<label :for="field.model">{{ field.label }}</label>
 							</div>
@@ -45,21 +46,27 @@
 							v-for="field in formConfig[currentForm].fields"
 							:key="field.model"
 						>
-							<div>
+							<div class="input-text">
+								<label :for="field.model">{{ field.label }}</label>
 								<input
-									type="checkbox"
+									type="text"
 									v-model="formData[field.model]"
+									:placeholder="field.placeholder"
 									:id="field.model"
 								/>
-								<label :for="field.model">{{ field.label }}</label>
 							</div>
 						</template>
 					</div>
 					<div v-else-if="currentForm === null">
 						<h2>Благодарим за информацию!</h2>
-            <h4>Используемые стили:</h4>
+						<h4>Используемые стили:</h4>
 						<p>
-							{{ getLabelsForModels(extractActiveCategories(formData), formConfig.step2.fields) }}
+							{{
+								getLabelsForModels(
+									extractActiveCategories(formData),
+									formConfig.step2.fields
+								)
+							}}
 						</p>
 					</div>
 					<button
@@ -67,31 +74,35 @@
 						type="submit"
 						class="btn-next"
 						style="display: block"
-            @click="loadRandomUrl(extractActiveCategories(formData))"
+						@click="loadRandomUrl(extractActiveCategories(formData))"
 					>
 						Отправить
 					</button>
 				</form>
 			</div>
 			<div class="modal-view modal-inner" v-if="isActiveModal">
-				<img
-					:src="selectedText"
-				/>
+				<img :src="selectedText" />
 			</div>
 		</div>
 	</div>
 </template>
 
 <script setup>
-import {ref, reactive, defineProps, onMounted} from 'vue'
-import axios from 'axios';
+import { ref, reactive, defineProps, onMounted } from 'vue'
+import axios from 'axios'
 
 const formConfig = ref({
 	step1: {
 		id: 1,
 		title: 'Используете в каких целях?',
 		fields: [
-			{ label: 'Дизайнер', name: 'target', type: 'radio', model: 'designer' },
+			{
+				label: 'Дизайнер',
+				name: 'target',
+				type: 'radio',
+				model: 'designer',
+				checked: 'checked',
+			},
 			{
 				label: 'Для бизнеса',
 				name: 'target',
@@ -121,7 +132,12 @@ const formConfig = ref({
 		title:
 			'Какие из следующих стилей дизайна интерьера вам больше всего нравятся? ',
 		fields: [
-			{ label: 'Длина', type: 'text', model: 'length' },
+			{
+				label: 'Длина',
+				type: 'text',
+				model: 'length',
+				placeholder: 'Введите число',
+			},
 			{ label: 'Ширина', type: 'text', model: 'width' },
 			{ label: 'Высота', type: 'text', model: 'height' },
 		],
@@ -135,6 +151,7 @@ const formData = reactive({})
 const showForm = formType => {
 	currentForm.value = formType
 	formConfig.value[formType].fields.forEach(field => {
+		console.log(formData[field.model])
 		formData[field.model] = field.type === 'checkbox' ? false : ''
 	})
 }
@@ -149,67 +166,67 @@ const submitForm = () => {
 	closeForm()
 }
 
-const selectedCategory = ref(null);
-const selectedText = ref(null);
+const selectedCategory = ref(null)
+const selectedText = ref(null)
 
 async function loadRandomUrl(categories) {
-  try {
-    console.log('categories:',categories);
-    const response = await axios.get('/example/data.json'); // Укажите правильный путь к файлу
-    const data = response.data;
-    const filteredCategories = categories.filter(category => category in data);
-    console.log("filteredCategories: ",filteredCategories);
-    if (filteredCategories.length === 0) {
-      console.error("None of the specified categories exist in the data.");
-      return;
-    }
-    const randomCategory = filteredCategories[Math.floor(Math.random() * filteredCategories.length)];
-    const texts = data[randomCategory];
-    const randomText = texts[Math.floor(Math.random() * texts.length)];
-    selectedCategory.value = randomCategory;
-    selectedText.value = randomText;
-  } catch (error) {
-    console.error('Failed to load data:', error);
-  }
+	try {
+		console.log('categories:', categories)
+		const response = await axios.get('/example/data.json') // Укажите правильный путь к файлу
+		const data = response.data
+		const filteredCategories = categories.filter(category => category in data)
+		console.log('filteredCategories: ', filteredCategories)
+		if (filteredCategories.length === 0) {
+			console.error('None of the specified categories exist in the data.')
+			return
+		}
+		const randomCategory =
+			filteredCategories[Math.floor(Math.random() * filteredCategories.length)]
+		const texts = data[randomCategory]
+		const randomText = texts[Math.floor(Math.random() * texts.length)]
+		selectedCategory.value = randomCategory
+		selectedText.value = randomText
+	} catch (error) {
+		console.error('Failed to load data:', error)
+	}
 }
 
 function extractActiveCategories(formData) {
-  // Создаем массив для хранения активных категорий
-  let activeCategories = [];
+	// Создаем массив для хранения активных категорий
+	let activeCategories = []
 
-  // Проходим по всем ключам в объекте formData
-  for (let key in formData) {
-    // Проверяем, равно ли значение ключа true
-    if (formData[key] === true) {
-      // Если да, добавляем ключ в массив активных категорий
-      activeCategories.push(key);
-    }
-  }
+	// Проходим по всем ключам в объекте formData
+	for (let key in formData) {
+		// Проверяем, равно ли значение ключа true
+		if (formData[key] === true) {
+			// Если да, добавляем ключ в массив активных категорий
+			activeCategories.push(key)
+		}
+	}
 
-  // Возвращаем массив активных категорий
-  return activeCategories;
+	// Возвращаем массив активных категорий
+	return activeCategories
 }
 
 function getLabelsForModels(models, fields) {
-  // Используем map для создания нового массива, содержащего метки для каждой модели
-  let labels = models.map(model => {
-    // Находим элемент в fields, где model совпадает с текущим элементом models
-    const field = fields.find(field => field.model === model);
-    // Возвращаем label, если элемент найден, иначе null
-    return field ? field.label : null;
-  });
+	// Используем map для создания нового массива, содержащего метки для каждой модели
+	let labels = models.map(model => {
+		// Находим элемент в fields, где model совпадает с текущим элементом models
+		const field = fields.find(field => field.model === model)
+		// Возвращаем label, если элемент найден, иначе null
+		return field ? field.label : null
+	})
 
-  // Фильтруем null значения (на случай, если какие-то модели не были найдены)
-  labels = labels.filter(label => label !== null);
+	// Фильтруем null значения (на случай, если какие-то модели не были найдены)
+	labels = labels.filter(label => label !== null)
 
-  // Преобразуем массив меток в строку, разделенную запятыми
-  return labels.join(', ');
+	// Преобразуем массив меток в строку, разделенную запятыми
+	return labels.join(', ')
 }
 
 // onMounted(async () => {
 //   loadRandomUrl(extractActiveCategories(formData))
 // })
-
 </script>
 
 <style scoped>
@@ -271,6 +288,11 @@ function getLabelsForModels(models, fields) {
 	cursor: pointer;
 	position: relative;
 	padding-left: 30px; /* space for the custom radio */
+	color: #000;
+	transition: 0.3s ease;
+}
+.input-radio label:hover {
+	color: orange;
 }
 
 .input-radio input[type='radio'] + label::before {
@@ -313,5 +335,31 @@ function getLabelsForModels(models, fields) {
 	border-radius: 20px;
 	width: 100%;
 	height: 100%;
+}
+
+.input-text {
+	display: flex;
+	margin-bottom: 16px;
+}
+.input-text label {
+	display: block;
+	width: 30%;
+	transition: 0.3s ease;
+}
+.input-text input {
+	display: block;
+	width: 30%;
+	background-color: #e2e470;
+	border-radius: 12px;
+	padding: 6px 12px;
+	border: 1px solid orange;
+	outline: none;
+	transition: 0.3s ease;
+}
+.input-text:hover label {
+	color: orange;
+}
+.input-text input:focus {
+	background-color: orange;
 }
 </style>
