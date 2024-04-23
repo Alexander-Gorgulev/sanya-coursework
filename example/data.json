@@ -1,0 +1,37 @@
+{
+  "modern": [
+    "https://les-stroi.ru/wp-content/uploads/7/3/0/73094da527594c1e55940f97c4b0b8d9.jpeg",
+    "https://mykaleidoscope.ru/uploads/posts/2021-03/1616624585_56-p-dizain-modern-interera-58.jpg",
+    "https://i.pinimg.com/originals/9a/a4/3d/9aa43d9358d113679e6a8f6d21870538.jpg"
+  ],
+  "classical": [
+    "textclassical",
+    "text2classical",
+    "text3classical"
+  ],
+  "scandinavia": [
+    "textclassical",
+    "text2classical",
+    "text3classical"
+  ],
+  "provencal": [
+    "textprovencal",
+    "text2provencal",
+    "text3provencal"
+  ],
+  "boho": [
+    "textboho",
+    "text2boho",
+    "text3boho"
+  ],
+  "minimalism": [
+    "textminimalism",
+    "text2minimalism",
+    "text3minimalism"
+  ],
+  "other": [
+    "textother",
+    "text2other",
+    "text3other"
+  ]
+}
