@@ -1,27 +1,19 @@
 <template>
 	<header>
 		<div class="header-btns header-btns-left">
-			<button
-				v-for="btn in leftBtnsData"
-				:key="btn.id"
-				@click="$emit('change-page', btn.model)"
-			>
+			<RouterLink v-for="btn in leftBtnsData" :key="btn.id" :to="btn.to">
 				{{ btn.name }}
-			</button>
+			</RouterLink>
 		</div>
 		<div>
-			<a href="/" class="logo-wrapper">
+			<RouterLink to="/" class="logo-wrapper">
 				<img src="../assets/logo.png" class="logo" alt="Design Mate" />
-			</a>
+			</RouterLink>
 		</div>
 		<div class="header-btns header-btns-right">
-			<button
-				v-for="btn in rightBtnsData"
-				:key="btn.id"
-				@click="$emit('change-page', btn.model)"
-			>
+			<RouterLink v-for="btn in rightBtnsData" :key="btn.id" :to="btn.to">
 				{{ btn.name }}
-			</button>
+			</RouterLink>
 		</div>
 	</header>
 </template>
@@ -30,12 +22,12 @@
 import { computed } from 'vue'
 
 const btnsData = [
-	{ id: 1, name: 'Главная', model: 'MainPage' },
-	{ id: 2, name: 'Галерея', model: 'GalleryPage' },
-	{ id: 3, name: 'Инструкция', model: 'TutorialPage' },
-	{ id: 4, name: 'Контакты', model: 'ContactsPage' },
-	{ id: 5, name: 'Регистрация', model: 'Register' },
-	{ id: 6, name: 'Войти', model: 'Login' },
+	{ id: 1, name: 'Главная', model: 'MainPage', to: '/' },
+	{ id: 2, name: 'Галерея', model: 'GalleryPage', to: '/gallery' },
+	{ id: 3, name: 'Инструкция', model: 'TutorialPage', to: '/tutorial' },
+	{ id: 4, name: 'Контакты', model: 'ContactsPage', to: '/contacts' },
+	{ id: 5, name: 'Регистрация', model: 'Register', to: '/register' },
+	{ id: 6, name: 'Войти', model: 'Login', to: '/login' },
 ]
 
 // Рассчитаем половину размера массива для деления
@@ -59,14 +51,14 @@ header {
 	flex-wrap: wrap;
 	gap: 0.8em;
 }
-.header-btns button {
+.header-btns a {
 	font-weight: 700;
 	padding: 0.5em;
 	background-color: transparent;
 	color: #301c1c;
 	transition: 1s;
 }
-.header-btns button:hover {
+.header-btns a:hover {
 	color: #883b3b;
 	transition: none;
 }
