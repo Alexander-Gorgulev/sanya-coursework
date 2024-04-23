@@ -57,8 +57,9 @@
 					</div>
 					<div v-else-if="currentForm === null">
 						<h2>Благодарим за информацию!</h2>
+            <h4>Используемые стили:</h4>
 						<p>
-							{{ formData }}
+							{{ getLabelsForModels(extractActiveCategories(formData), formConfig.step2.fields) }}
 						</p>
 					</div>
 					<button
@@ -66,6 +67,7 @@
 						type="submit"
 						class="btn-next"
 						style="display: block"
+            @click="loadRandomUrl(extractActiveCategories(formData))"
 					>
 						Отправить
 					</button>
@@ -73,7 +75,7 @@
 			</div>
 			<div class="modal-view modal-inner" v-if="isActiveModal">
 				<img
-					src="https://media.tenor.com/2GBK8X7jSP8AAAAM/rat-eats-mm-rat.gif"
+					:src="selectedText"
 				/>
 			</div>
 		</div>
@@ -81,7 +83,8 @@
 </template>
 
 <script setup>
-import { ref, reactive, defineProps } from 'vue'
+import {ref, reactive, defineProps, onMounted} from 'vue'
+import axios from 'axios';
 
 const formConfig = ref({
 	step1: {
@@ -104,13 +107,13 @@ const formConfig = ref({
 		title:
 			'Какие из следующих стилей дизайна интерьера вам больше всего нравятся? ',
 		fields: [
-			{ label: 'Современный', type: 'checkbox', model: 'task1' },
-			{ label: 'Классический', type: 'checkbox', model: 'task2' },
-			{ label: 'Скандинавский', type: 'checkbox', model: 'task3' },
-			{ label: 'Провансальский', type: 'checkbox', model: 'task4' },
-			{ label: 'Бохо', type: 'checkbox', model: 'task5' },
-			{ label: 'Минимализм', type: 'checkbox', model: 'task6' },
-			{ label: 'Другое', type: 'checkbox', model: 'task7' },
+			{ label: 'Современный', type: 'checkbox', model: 'modern' },
+			{ label: 'Классический', type: 'checkbox', model: 'classical' },
+			{ label: 'Скандинавский', type: 'checkbox', model: 'scandinavia' },
+			{ label: 'Провансальский', type: 'checkbox', model: 'provencal' },
+			{ label: 'Бохо', type: 'checkbox', model: 'boho' },
+			{ label: 'Минимализм', type: 'checkbox', model: 'minimalism' },
+			{ label: 'Другое', type: 'checkbox', model: 'other' },
 		],
 	},
 	step3: {
@@ -145,6 +148,68 @@ const submitForm = () => {
 	console.log('Форма отправлена с данными:', formData)
 	closeForm()
 }
+
+const selectedCategory = ref(null);
+const selectedText = ref(null);
+
+async function loadRandomUrl(categories) {
+  try {
+    console.log('categories:',categories);
+    const response = await axios.get('/example/data.json'); // Укажите правильный путь к файлу
+    const data = response.data;
+    const filteredCategories = categories.filter(category => category in data);
+    console.log("filteredCategories: ",filteredCategories);
+    if (filteredCategories.length === 0) {
+      console.error("None of the specified categories exist in the data.");
+      return;
+    }
+    const randomCategory = filteredCategories[Math.floor(Math.random() * filteredCategories.length)];
+    const texts = data[randomCategory];
+    const randomText = texts[Math.floor(Math.random() * texts.length)];
+    selectedCategory.value = randomCategory;
+    selectedText.value = randomText;
+  } catch (error) {
+    console.error('Failed to load data:', error);
+  }
+}
+
+function extractActiveCategories(formData) {
+  // Создаем массив для хранения активных категорий
+  let activeCategories = [];
+
+  // Проходим по всем ключам в объекте formData
+  for (let key in formData) {
+    // Проверяем, равно ли значение ключа true
+    if (formData[key] === true) {
+      // Если да, добавляем ключ в массив активных категорий
+      activeCategories.push(key);
+    }
+  }
+
+  // Возвращаем массив активных категорий
+  return activeCategories;
+}
+
+function getLabelsForModels(models, fields) {
+  // Используем map для создания нового массива, содержащего метки для каждой модели
+  let labels = models.map(model => {
+    // Находим элемент в fields, где model совпадает с текущим элементом models
+    const field = fields.find(field => field.model === model);
+    // Возвращаем label, если элемент найден, иначе null
+    return field ? field.label : null;
+  });
+
+  // Фильтруем null значения (на случай, если какие-то модели не были найдены)
+  labels = labels.filter(label => label !== null);
+
+  // Преобразуем массив меток в строку, разделенную запятыми
+  return labels.join(', ');
+}
+
+// onMounted(async () => {
+//   loadRandomUrl(extractActiveCategories(formData))
+// })
+
 </script>
 
 <style scoped>
